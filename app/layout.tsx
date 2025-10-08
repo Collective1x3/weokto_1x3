@@ -14,6 +14,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className="antialiased">
+        {/* TODO: Wrap with AuthProvider when created */}
         {children}
       </body>
     </html>

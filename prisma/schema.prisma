@@ -76,6 +76,7 @@ model MagicLinkToken {
   id        String   @id @default(cuid())
   email     String   @db.Citext
   token     String   @unique
+  otpCode   String   // 6-digit OTP code
   platform  Platform
   expiresAt DateTime
   usedAt    DateTime?
@@ -83,6 +84,7 @@ model MagicLinkToken {
 
   @@index([email, platform])
   @@index([token])
+  @@index([email, otpCode])
   @@map("magic_link_tokens")
 }
 
