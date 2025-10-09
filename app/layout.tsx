@@ -1,11 +1,23 @@
 import type { Metadata } from "next";
 import { Providers } from "./providers";
 import "./globals.css";
+import { getRequestTenant } from "@/lib/tenant";
 
-export const metadata: Metadata = {
-  title: "WEOKTO",
-  description: "Plateforme sécurisée pour vos expériences digitales.",
-};
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const tenant = await getRequestTenant();
+  if (tenant === "stam") {
+    return {
+      title: "STAM",
+      description: "Expériences créatives et immersives",
+    };
+  }
+  return {
+    title: "WEOKTO",
+    description: "Plateforme sécurisée pour vos expériences digitales.",
+  };
+}
 
 type RootLayoutProps = {
   children: React.ReactNode;

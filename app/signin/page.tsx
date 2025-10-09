@@ -1,24 +1,37 @@
 import { SignInScreen } from "../shared/signin-screen";
+import { getRequestTenant } from "@/lib/tenant";
 import type { Metadata } from "next";
 
 const COPY = {
-  title: "Connexion Weokto",
-  description: "Accédez à votre espace sécurisé avec votre e-mail.",
+  weokto: {
+    title: "Connexion Weokto",
+    description: "Accédez à votre espace sécurisé avec votre e-mail.",
+  },
+  stam: {
+    title: "Connexion Stam",
+    description: "Entrez dans l'espace Stam via lien magique ou code OTP.",
+  },
 } as const;
 
-export function generateMetadata(): Metadata {
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const tenant = await getRequestTenant();
+  const copy = COPY[tenant];
   return {
-    title: COPY.title,
-    description: COPY.description,
+    title: copy.title,
+    description: copy.description,
   };
 }
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const tenant = await getRequestTenant();
+  const copy = COPY[tenant];
   return (
     <SignInScreen
-      site="weokto"
-      title={COPY.title}
-      description={COPY.description}
+      site={tenant}
+      title={copy.title}
+      description={copy.description}
     />
   );
 }
