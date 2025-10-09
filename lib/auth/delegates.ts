@@ -16,13 +16,4 @@ export const prismaDelegates = {
     verificationToken: prisma.stamVerificationToken,
     otp: prisma.stamOtpCode,
   },
-} satisfies Record<
-  SiteKey,
-  {
-    user: typeof prisma.weoktoUser;
-    account: typeof prisma.weoktoAccount;
-    session: typeof prisma.weoktoSession;
-    verificationToken: typeof prisma.weoktoVerificationToken;
-    otp: typeof prisma.weoktoOtpCode;
-  }
->;
+} as const satisfies Record<SiteKey, Record<string, unknown>>;

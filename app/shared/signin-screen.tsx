@@ -52,7 +52,7 @@ export function SignInScreen({ site, title, description }: SignInScreenProps) {
     setStatus({ variant: "idle", message: "" });
     startMagicLinkTransition(async () => {
       try {
-        const result = await signIn(`${site}-email`, {
+        const result = await signIn("email", {
           email,
           redirect: false,
           callbackUrl: redirectBySite[site],
@@ -91,7 +91,7 @@ export function SignInScreen({ site, title, description }: SignInScreenProps) {
     startOtpTransition(async () => {
       try {
         const result = await signIn(
-          `${site}-otp`,
+          "otp",
           {
             email,
             code,

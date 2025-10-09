@@ -1,9 +1,8 @@
 import type { NextAuthOptions } from "next-auth";
 import EmailProvider from "next-auth/providers/email";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "../prisma";
 import { prismaDelegates } from "./delegates";
+import { createSiteAdapter } from "./site-adapter";
 import {
   OTP_MAX_ATTEMPTS,
   OTP_TTL_MS,
@@ -22,6 +21,9 @@ function resolveSiteSecret(site: SiteKey) {
   const value =
     process.env[envKey as keyof NodeJS.ProcessEnv] ?? process.env.AUTH_SECRET;
   if (!value) {
+    if (process.env.VERCEL !== "1") {
+      return `dev-secret-${site}`;
+    }
     throw new Error(
       `Secret NextAuth manquant pour ${site}. Renseignez ${envKey} ou AUTH_SECRET.`
     );
@@ -32,63 +34,62 @@ function resolveSiteSecret(site: SiteKey) {
 export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
   const config = SITE_CONFIGS[site];
   const delegates = prismaDelegates[site];
+  const userDelegate = delegates.user as any;
+  const accountDelegate = delegates.account as any;
+  const sessionDelegate = delegates.session as any;
+  const verificationDelegate = delegates.verificationToken as any;
+  const otpDelegate = delegates.otp as any;
 
   return {
     secret: resolveSiteSecret(site),
-    adapter: PrismaAdapter(prisma, {
-      modelMapping: {
-        User: delegates.user,
-        Account: delegates.account,
-        Session: delegates.session,
-        VerificationToken: delegates.verificationToken,
-      },
-    }),
+    adapter: createSiteAdapter(site),
     session: {
       strategy: "database",
       maxAge: 14 * 24 * 60 * 60,
       updateAge: 24 * 60 * 60,
     },
     providers: [
-      EmailProvider({
-        id: `${site}-email`,
-        name: `${config.name} Magic Link`,
-        maxAge: 15 * 60,
-        from:
-          process.env[config.fromEnvVar as keyof NodeJS.ProcessEnv] ??
-          process.env.RESEND_DEFAULT_FROM,
-        async sendVerificationRequest({ identifier, url }) {
-          const email = normalizeEmail(identifier);
-          const otp = generateOtp(site);
-          const hash = hashOtp(site, otp);
-          const expires = new Date(Date.now() + OTP_TTL_MS);
+      (() => {
+        const provider = EmailProvider({
+          maxAge: 15 * 60,
+          from:
+            process.env[config.fromEnvVar as keyof NodeJS.ProcessEnv] ??
+            process.env.RESEND_DEFAULT_FROM,
+          async sendVerificationRequest({ identifier, url }) {
+            const email = normalizeEmail(identifier);
+            const otp = generateOtp(site);
+            const hash = hashOtp(site, otp);
+            const expires = new Date(Date.now() + OTP_TTL_MS);
 
-          await delegates.otp.deleteMany({
-            where: { email },
-          });
+            await otpDelegate.deleteMany({
+              where: { email },
+            });
 
-          await delegates.otp.create({
-            data: {
-              email,
-              codeHash: hash,
-              expires,
-            },
-          });
+            await otpDelegate.create({
+              data: {
+                email,
+                codeHash: hash,
+                expires,
+              },
+            });
 
-          const existingUser = await delegates.user.findFirst({
-            where: { email },
-          });
+            const existingUser = await userDelegate.findFirst({
+              where: { email },
+            });
 
-          await sendAuthEmail({
-            site,
-            kind: existingUser ? "login" : "signup",
-            to: identifier,
-            magicLink: url,
-            otpCode: otp,
-          });
-        },
-      }),
+            await sendAuthEmail({
+              site,
+              kind: existingUser ? "login" : "signup",
+              to: identifier,
+              magicLink: url,
+              otpCode: otp,
+            });
+          },
+        });
+        return provider;
+      })(),
       CredentialsProvider({
-        id: `${site}-otp`,
+        id: "otp",
         name: `${config.name} OTP`,
         credentials: {
           email: { label: "E-mail", type: "email" },
@@ -104,7 +105,7 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
             throw new Error("Email ou code OTP invalide.");
           }
 
-          const record = await delegates.otp.findFirst({
+          const record = await otpDelegate.findFirst({
             where: { email },
             orderBy: { createdAt: "desc" },
           });
@@ -120,7 +121,7 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
           }
 
           if (record.expires.getTime() < now.getTime()) {
-            await delegates.otp.update({
+            await otpDelegate.update({
               where: { id: record.id },
               data: { consumedAt: now, lastAttempt: now },
             });
@@ -135,7 +136,7 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
 
           const hashed = hashOtp(site, code);
           if (hashed !== record.codeHash) {
-            await delegates.otp.update({
+            await otpDelegate.update({
               where: { id: record.id },
               data: {
                 attempts: { increment: 1 },
@@ -145,7 +146,7 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
             throw new Error("Code OTP incorrect.");
           }
 
-          await delegates.otp.update({
+          await otpDelegate.update({
             where: { id: record.id },
             data: {
               consumedAt: now,
@@ -154,20 +155,20 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
             },
           });
 
-          await delegates.otp.deleteMany({
+          await otpDelegate.deleteMany({
             where: {
               email,
               id: { not: record.id },
             },
           });
 
-          const existingUser = await delegates.user.findFirst({
+          const existingUser = await userDelegate.findFirst({
             where: { email },
           });
 
           const user =
             existingUser ??
-            (await delegates.user.create({
+            (await userDelegate.create({
               data: {
                 email,
                 createdAt: now,
@@ -199,7 +200,7 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
     events: {
       async signIn({ user, isNewUser }) {
         if (isNewUser && user.email) {
-          await delegates.otp.deleteMany({
+          await otpDelegate.deleteMany({
             where: { email: normalizeEmail(user.email) },
           });
         }

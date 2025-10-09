@@ -11,9 +11,9 @@ export function generateOtp(site: SiteKey) {
 
 export function hashOtp(site: SiteKey, code: string) {
   const secret =
-    process.env[[SITE_CONFIGS[site].authSecretEnvVar] as keyof NodeJS.ProcessEnv] ??
-    process.env.AUTH_SECRET ??
-    "";
+    process.env[
+      SITE_CONFIGS[site].authSecretEnvVar as keyof NodeJS.ProcessEnv
+    ] ?? process.env.AUTH_SECRET ?? "";
 
   return createHash("sha256")
     .update(`${site}:${code}:${secret}`)
