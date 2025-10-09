@@ -8,6 +8,7 @@ type SiteConfig = {
   originEnvVar: string;
   fromEnvVar: string;
   authSecretEnvVar: string;
+  cookieDomainEnvVar: string;
   otpLength: number;
 };
 
@@ -20,6 +21,7 @@ export const SITE_CONFIGS: Record<SiteKey, SiteConfig> = {
     originEnvVar: "WEOKTO_APP_URL",
     fromEnvVar: "WEOKTO_EMAIL_FROM",
     authSecretEnvVar: "WEOKTO_AUTH_SECRET",
+    cookieDomainEnvVar: "WEOKTO_COOKIE_DOMAIN",
     otpLength: 6,
   },
   stam: {
@@ -30,6 +32,7 @@ export const SITE_CONFIGS: Record<SiteKey, SiteConfig> = {
     originEnvVar: "STAM_APP_URL",
     fromEnvVar: "STAM_EMAIL_FROM",
     authSecretEnvVar: "STAM_AUTH_SECRET",
+    cookieDomainEnvVar: "STAM_COOKIE_DOMAIN",
     otpLength: 6,
   },
 };

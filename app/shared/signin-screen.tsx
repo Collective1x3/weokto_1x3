@@ -19,7 +19,7 @@ type Status =
 
 const redirectBySite: Record<SiteKey, string> = {
   weokto: "/",
-  stam: "/stam",
+  stam: "/",
 };
 
 export function SignInScreen({ site, title, description }: SignInScreenProps) {

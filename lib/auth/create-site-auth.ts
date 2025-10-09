@@ -11,6 +11,7 @@ import {
 } from "./otp";
 import { SITE_CONFIGS, type SiteKey } from "./site-config";
 import { sendAuthEmail } from "../email/send-auth-email";
+import { getCookieDomain } from "@/lib/config/hosts";
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -50,6 +51,8 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
   const sessionDelegate = delegates.session as any;
   const verificationDelegate = delegates.verificationToken as any;
   const otpDelegate = delegates.otp as any;
+  const cookieDomain = getCookieDomain(site);
+  const secureCookies = process.env.NODE_ENV === "production";
 
   return {
     secret: resolveSiteSecret(site),
@@ -58,6 +61,36 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
       strategy: "database",
       maxAge: 14 * 24 * 60 * 60,
       updateAge: 24 * 60 * 60,
+    },
+    cookies: {
+      sessionToken: {
+        name: `__Secure-${site}.session-token`,
+        options: {
+          httpOnly: true,
+          sameSite: "lax",
+          path: "/",
+          secure: secureCookies,
+          domain: cookieDomain,
+        },
+      },
+      callbackUrl: {
+        name: `${site}.callback-url`,
+        options: {
+          sameSite: "lax",
+          path: "/",
+          secure: secureCookies,
+          domain: cookieDomain,
+        },
+      },
+      csrfToken: {
+        name: `${site}.csrf-token`,
+        options: {
+          sameSite: "lax",
+          path: "/",
+          secure: secureCookies,
+          domain: cookieDomain,
+        },
+      },
     },
     providers: [
       (() => {
