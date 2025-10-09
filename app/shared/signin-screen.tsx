@@ -112,9 +112,8 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
           message: "Connexion réussie. Redirection en cours...",
         });
         setCode("");
-        const target = result?.url ?? redirectPath;
-        router.replace(target);
-        router.refresh();
+        const target = result?.url ?? (origin ? `${origin}${redirectPath}` : redirectPath);
+        window.location.assign(target);
       } catch (error) {
         console.error(error);
         setStatus({
