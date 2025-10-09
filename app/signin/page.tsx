@@ -13,6 +13,8 @@ const COPY = {
   },
 } as const;
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const tenant = await getRequestTenant();
   const copy = COPY[tenant];

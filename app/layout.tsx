@@ -3,6 +3,8 @@ import { Providers } from "./providers";
 import "./globals.css";
 import { getRequestTenant } from "@/lib/tenant";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const tenant = await getRequestTenant();
   if (tenant === "stam") {
