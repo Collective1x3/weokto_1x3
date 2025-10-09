@@ -16,9 +16,15 @@ export interface SessionPayload {
 export interface SessionUser {
   id: string
   email: string
-  userType: string
+  userType: string | null
   displayName: string | null
   avatarUrl: string | null
+  bio: string | null
+  publicSlug: string | null
+  guildId: string | null
+  createdAt: Date
+  lastLoginAt: Date | null
+  profileSectionsOrder: any | null
 }
 
 /**
@@ -105,6 +111,12 @@ export async function getSession(): Promise<{
         userType: session.user.userType,
         displayName: session.user.displayName,
         avatarUrl: session.user.avatarUrl,
+        bio: session.user.bio,
+        publicSlug: session.user.publicSlug,
+        guildId: session.user.guildId,
+        createdAt: session.user.createdAt,
+        lastLoginAt: session.user.lastLoginAt,
+        profileSectionsOrder: session.user.profileSectionsOrder,
       },
       sessionId: session.id,
     }

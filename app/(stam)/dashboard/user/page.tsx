@@ -44,13 +44,13 @@ export default async function StamUserDashboard() {
     redirect('/stam/login')
   }
 
-  if (!['CLIENT', 'AFFILIATE'].includes(session.userType)) {
+  if (!['CLIENT', 'AFFILIATE'].includes(session.user.userType || '')) {
     redirect('/stam/dashboard')
   }
 
   const [progressRecords, publishedFormations] = await Promise.all([
     listProgress({
-      stamUserId: session.id,
+      stamUserId: session.user.id,
       includeFormation: true,
       includeModule: true
     }),
@@ -114,7 +114,7 @@ export default async function StamUserDashboard() {
 
   const totalMinutesWatched = await prisma.stamProgress.aggregate({
     where: {
-      stamUserId: session.id,
+      stamUserId: session.user.id,
       status: 'COMPLETED'
     },
     _sum: {
@@ -134,7 +134,7 @@ export default async function StamUserDashboard() {
             </div>
             <div>
               <h1 className="text-3xl font-semibold text-emerald-900 md:text-4xl">
-                Salut {session.displayName ?? session.email},
+                Salut {session.user.displayName ?? session.user.email},
               </h1>
               <p className="mt-2 max-w-2xl text-sm text-emerald-900/80 md:text-base">
                 Voici un récapitulatif de tes formations STAM. Reprends où tu t&apos;es arrêté ou explore de nouveaux

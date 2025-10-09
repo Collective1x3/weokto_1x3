@@ -23,7 +23,7 @@ export default async function StamAdminDashboard() {
     redirect('/stam/login')
   }
 
-  if (!['ADMIN', 'WEOWNER'].includes(session.userType)) {
+  if (!['ADMIN', 'WEOWNER'].includes(session.user.userType || '')) {
     redirect('/stam/dashboard')
   }
 

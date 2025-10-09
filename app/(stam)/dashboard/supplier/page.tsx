@@ -15,7 +15,7 @@ export default async function StamSupplierDashboard() {
     redirect('/stam/login')
   }
 
-  if (session.userType !== 'SUPPLIER') {
+  if (session.user.userType !== 'SUPPLIER') {
     redirect('/stam/dashboard')
   }
 

@@ -103,7 +103,7 @@ export async function middleware(request: NextRequest) {
     : await getSession(request)
 
   // Define protected routes
-  const weoktoProtectedRoutes = ['/home', '/profile', '/settings']
+  const weoktoProtectedRoutes = ['/home', '/profile', '/settings', '/dashboard']
   const stamProtectedRoutes = ['/dashboard']
   const ownerRoutes = pathname.startsWith('/wo-renwo-9492xE')
   const adminRoutes = pathname.startsWith('/admin')

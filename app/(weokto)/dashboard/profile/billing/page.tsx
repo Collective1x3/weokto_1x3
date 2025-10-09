@@ -49,7 +49,7 @@ async function updateBilling(_prev: FormState, formData: FormData): Promise<Form
   const customer = await prisma.customer.findFirst({
     where: {
       id: parsed.data.customerId,
-      weoktoUserId: session.id
+      weoktoUserId: session.user.id
     }
   })
 
@@ -96,7 +96,7 @@ export default async function ProfileBillingPage() {
   }
 
   const customers = await prisma.customer.findMany({
-    where: { weoktoUserId: session.id },
+    where: { weoktoUserId: session.user.id },
     include: {
       product: {
         select: {

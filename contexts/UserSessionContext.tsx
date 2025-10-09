@@ -37,30 +37,47 @@ interface WeoktoUser {
   createdAt: string;
 }
 
+export interface DashboardUser {
+  id: string;
+  email: string;
+  displayName: string | null;
+  bio: string | null;
+  publicSlug: string | null;
+  guildId: string | null;
+  userType: string | null;
+  createdAt: string | null;
+  lastLoginAt: string | null;
+  profileSectionsOrder: any | null;
+}
+
 interface UserSessionContextType {
-  user: WeoktoUser | null;
+  user: DashboardUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, otp: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  setUser: React.Dispatch<React.SetStateAction<DashboardUser | null>>;
 }
 
 const UserSessionContext = createContext<UserSessionContextType | undefined>(undefined);
 
 interface UserSessionProviderProps {
   children: ReactNode;
+  initialUser?: DashboardUser | null;
 }
 
-export function UserSessionProvider({ children }: UserSessionProviderProps) {
+export function UserSessionProvider({ children, initialUser }: UserSessionProviderProps) {
   const router = useRouter();
-  const [user, setUser] = useState<WeoktoUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<DashboardUser | null>(initialUser || null);
+  const [isLoading, setIsLoading] = useState(!initialUser);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!initialUser);
 
-  // Fetch user on mount
+  // Fetch user on mount only if no initial user
   useEffect(() => {
-    fetchUser();
+    if (!initialUser) {
+      fetchUser();
+    }
   }, []);
 
   const fetchUser = async () => {
@@ -134,6 +151,7 @@ export function UserSessionProvider({ children }: UserSessionProviderProps) {
     login,
     logout,
     refreshUser,
+    setUser,
   };
 
   return (

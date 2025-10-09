@@ -30,7 +30,7 @@ export default async function StamDashboardIndex() {
     redirect('/stam/login')
   }
 
-  const availableCards = cards.filter((card) => card.roles.includes(session.userType))
+  const availableCards = cards.filter((card) => card.roles.includes(session.user.userType || ''))
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 md:px-6 lg:px-8">
@@ -40,7 +40,7 @@ export default async function StamDashboardIndex() {
             <span className="text-xs font-bold uppercase tracking-[0.35em] text-emerald-900">Tableau de bord</span>
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 md:text-5xl">
-            Bienvenue sur STAM, {session.displayName || session.email}
+            Bienvenue sur STAM, {session.user.displayName || session.user.email}
           </h1>
           <p className="text-base font-medium text-gray-600 leading-relaxed">
             Les modules ci-dessous sont en cours de construction. Clique pour accéder au prototype correspondant à ton rôle.
@@ -50,7 +50,7 @@ export default async function StamDashboardIndex() {
         <section className="grid gap-6 md:grid-cols-2">
           {availableCards.length === 0 ? (
             <div className="rounded-3xl border border-gray-200 bg-white p-8 text-base font-medium text-gray-600 shadow-xl shadow-black/5">
-              Aucun espace n&apos;est encore configuré pour ton rôle ({session.userType}). Contacte un admin STAM si besoin.
+              Aucun espace n&apos;est encore configuré pour ton rôle ({session.user.userType}). Contacte un admin STAM si besoin.
             </div>
           ) : (
             availableCards.map((card) => (

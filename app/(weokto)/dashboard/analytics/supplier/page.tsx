@@ -9,12 +9,12 @@ export default async function SupplierAnalyticsPage() {
     redirect('/login')
   }
 
-  if (!['SUPPLIER', 'WEOWNER'].includes(session.userType)) {
+  if (!['SUPPLIER', 'WEOWNER'].includes(session.user.userType)) {
     redirect('/dashboard')
   }
 
   const summary = await getSupplierSummary({
-    supplierId: session.userType === 'SUPPLIER' ? session.id : undefined
+    supplierId: session.user.userType === 'SUPPLIER' ? session.user.id : undefined
   })
 
   if (!summary) {

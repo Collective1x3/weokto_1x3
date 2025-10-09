@@ -106,7 +106,7 @@ export default async function GuildFormationsPage() {
   const guildId = overview.guild.id
   const [formations, progressEntries] = await Promise.all([
     getPublishedFormationsCached(guildId),
-    listUserProgress(session.id, guildId)
+    listUserProgress(session.user.id, guildId)
   ])
 
   const cards = buildFormationCards(formations, progressEntries)

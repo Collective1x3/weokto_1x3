@@ -9,7 +9,7 @@ export default async function AnalyticsEntryPage() {
     redirect('/login')
   }
 
-  const summary = await getAffiliateSummary({ affiliateId: session.id })
+  const summary = await getAffiliateSummary({ affiliateId: session.user.id })
 
   return <AffiliateAnalyticsStats summary={summary} />
 }

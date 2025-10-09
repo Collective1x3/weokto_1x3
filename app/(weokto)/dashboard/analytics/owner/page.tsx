@@ -9,7 +9,7 @@ export default async function OwnerAnalyticsPage() {
   if (!session) {
     redirect('/login')
   }
-  if (session.userType !== 'WEOWNER') {
+  if (session.user.userType !== 'WEOWNER') {
     redirect('/dashboard')
   }
 

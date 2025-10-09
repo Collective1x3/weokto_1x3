@@ -7,7 +7,7 @@ export default async function AffiliateAnalyticsPage() {
     redirect('/login')
   }
 
-  if (session.userType !== 'AFFILIATE') {
+  if (session.user.userType !== 'AFFILIATE') {
     redirect('/dashboard')
   }
 

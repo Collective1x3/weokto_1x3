@@ -12,15 +12,15 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   const initialUser: DashboardUser | null = session
     ? {
-        id: session.id,
-        email: session.email,
-        displayName: session.displayName ?? null,
-        bio: session.bio ?? null,
+        id: session.user.id,
+        email: session.user.email,
+        displayName: session.user.displayName ?? null,
+        bio: session.user.bio ?? null,
         publicSlug: null,
         guildId: null,
-        userType: session.userType ?? null,
-        createdAt: session.createdAt ? session.createdAt.toISOString() : null,
-        lastLoginAt: session.lastLoginAt ? session.lastLoginAt.toISOString() : null,
+        userType: session.user.userType ?? null,
+        createdAt: session.user.createdAt ? session.user.createdAt.toISOString() : null,
+        lastLoginAt: session.user.lastLoginAt ? session.user.lastLoginAt.toISOString() : null,
         profileSectionsOrder: null
       }
     : null

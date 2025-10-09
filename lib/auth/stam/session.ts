@@ -18,6 +18,10 @@ export interface StamSessionUser {
   email: string
   displayName: string | null
   avatarUrl: string | null
+  bio: string | null
+  userType: string | null
+  createdAt: Date
+  lastLoginAt: Date | null
 }
 
 /**
@@ -101,6 +105,10 @@ export async function getStamSession(): Promise<{
         email: session.user.email,
         displayName: session.user.displayName,
         avatarUrl: session.user.avatarUrl,
+        bio: session.user.bio,
+        userType: null, // TODO: Determine user type from relations
+        createdAt: session.user.createdAt,
+        lastLoginAt: session.user.lastLoginAt,
       },
       sessionId: session.id,
     }
