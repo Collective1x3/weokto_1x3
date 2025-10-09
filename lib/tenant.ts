@@ -22,18 +22,12 @@ function parseHostList(value: string | undefined) {
     .filter(Boolean);
 }
 
-const FALLBACK_STAM_HOSTS = ["be-stam.com", "www.be-stam.com"];
-const FALLBACK_WEOKTO_HOSTS = ["weokto.com", "www.weokto.com"];
-
-const STAM_HOSTS = [
-  ...FALLBACK_STAM_HOSTS,
-  ...parseHostList(getEnv("NEXT_PUBLIC_STAM_HOSTS")),
-];
-
-const WEOKTO_HOSTS = [
-  ...FALLBACK_WEOKTO_HOSTS,
-  ...parseHostList(getEnv("NEXT_PUBLIC_WEOKTO_HOSTS")),
-];
+const FALLBACK_STAM_HOSTS = parseHostList(
+  getEnv("NEXT_PUBLIC_STAM_HOSTS") ?? getEnv("NEXT_PUBLIC_STAM_APP_URL")
+) ?? [];
+const FALLBACK_WEOKTO_HOSTS = parseHostList(
+  getEnv("NEXT_PUBLIC_WEOKTO_HOSTS") ?? getEnv("NEXT_PUBLIC_APP_URL")
+) ?? [];
 
 const DEFAULT_TENANT: TenantKey =
   (getEnv("NEXT_PUBLIC_DEFAULT_TENANT") as TenantKey | undefined) ?? "weokto";
@@ -61,10 +55,10 @@ function hostMatches(host: string | undefined, candidates: string[]) {
 
 export function resolveTenantFromHost(host?: string | null): TenantKey {
   const normalized = normalizeHost(host);
-  if (hostMatches(normalized, STAM_HOSTS)) {
+  if (hostMatches(normalized, FALLBACK_STAM_HOSTS)) {
     return "stam";
   }
-  if (hostMatches(normalized, WEOKTO_HOSTS)) {
+  if (hostMatches(normalized, FALLBACK_WEOKTO_HOSTS)) {
     return "weokto";
   }
   return DEFAULT_TENANT;
