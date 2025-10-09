@@ -21,33 +21,48 @@ function shouldBypass(pathname: string) {
 }
 
 export function middleware(request: NextRequest) {
-  const url = request.nextUrl.clone();
-  const hostname = request.headers.get("host") ?? "";
-  const pathname = url.pathname;
+  try {
+    const url = request.nextUrl.clone();
+    const hostname = request.headers.get("host") ?? "";
+    const pathname = url.pathname;
 
-  if (shouldBypass(pathname)) {
-    return NextResponse.next();
-  }
-
-  if (isStamHost(hostname)) {
-    if (!pathname.startsWith("/stam")) {
-      url.pathname =
-        pathname === "/" ? "/stam" : `/stam${pathname.startsWith("/") ? "" : "/"}${pathname.replace(/^\//, "")}`;
-      return NextResponse.rewrite(url);
+    if (shouldBypass(pathname)) {
+      return NextResponse.next();
     }
-    return NextResponse.next();
-  }
 
-  if (isWeoktoHost(hostname)) {
-    if (!pathname.startsWith("/weokto")) {
-      url.pathname =
-        pathname === "/" ? "/weokto" : `/weokto${pathname.startsWith("/") ? "" : "/"}${pathname.replace(/^\//, "")}`;
-      return NextResponse.rewrite(url);
+    if (isStamHost(hostname)) {
+      if (!pathname.startsWith("/stam")) {
+        url.pathname =
+          pathname === "/"
+            ? "/stam"
+            : `/stam${pathname.startsWith("/") ? "" : "/"}${pathname.replace(
+                /^\//,
+                ""
+              )}`;
+        return NextResponse.rewrite(url);
+      }
+      return NextResponse.next();
     }
+
+    if (isWeoktoHost(hostname)) {
+      if (!pathname.startsWith("/weokto")) {
+        url.pathname =
+          pathname === "/"
+            ? "/weokto"
+            : `/weokto${pathname.startsWith("/") ? "" : "/"}${pathname.replace(
+                /^\//,
+                ""
+              )}`;
+        return NextResponse.rewrite(url);
+      }
+      return NextResponse.next();
+    }
+
+    return NextResponse.next();
+  } catch (error) {
+    console.error("[middleware] Error:", error);
     return NextResponse.next();
   }
-
-  return NextResponse.next();
 }
 
 export const config = {
