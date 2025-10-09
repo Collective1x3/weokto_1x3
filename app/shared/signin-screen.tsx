@@ -88,17 +88,18 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
 
     startOtpTransition(async () => {
       try {
+        const target = origin ? `${origin}${redirectPath}` : redirectPath;
         const result = await signIn(
           "otp",
           {
             email,
             code,
-            redirect: false,
-            callbackUrl: origin ? `${origin}${redirectPath}` : redirectPath,
+            callbackUrl: target,
           },
-          { prompt: "login" },
         );
 
+        // Lorsque redirect est true (par défaut), signIn renvoie undefined.
+        // En cas d'erreur, NextAuth redirige vers la page avec le paramètre ?error.
         if (result?.error) {
           setStatus({
             variant: "error",
@@ -109,11 +110,9 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
 
         setStatus({
           variant: "success",
-          message: "Connexion réussie. Redirection en cours...",
+          message: "Redirection en cours...",
         });
         setCode("");
-        const target = result?.url ?? (origin ? `${origin}${redirectPath}` : redirectPath);
-        window.location.assign(target);
       } catch (error) {
         console.error(error);
         setStatus({
