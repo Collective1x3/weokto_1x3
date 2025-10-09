@@ -10,6 +10,7 @@ type SignInScreenProps = {
   site: SiteKey;
   title: string;
   description: string;
+  redirectPath: string;
 };
 
 type Status =
@@ -17,12 +18,7 @@ type Status =
   | { variant: "success"; message: string }
   | { variant: "error"; message: string };
 
-const redirectBySite: Record<SiteKey, string> = {
-  weokto: "/dashboard",
-  stam: "/home",
-};
-
-export function SignInScreen({ site, title, description }: SignInScreenProps) {
+export function SignInScreen({ site, title, description, redirectPath }: SignInScreenProps) {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<Status>({
@@ -55,7 +51,7 @@ export function SignInScreen({ site, title, description }: SignInScreenProps) {
         const result = await signIn("email", {
           email,
           redirect: false,
-          callbackUrl: redirectBySite[site],
+          callbackUrl: redirectPath,
         });
 
         if (result?.error) {
@@ -96,7 +92,7 @@ export function SignInScreen({ site, title, description }: SignInScreenProps) {
             email,
             code,
             redirect: false,
-            callbackUrl: redirectBySite[site],
+            callbackUrl: redirectPath,
           },
           { prompt: "login" },
         );
@@ -114,7 +110,7 @@ export function SignInScreen({ site, title, description }: SignInScreenProps) {
           message: "Connexion réussie. Redirection en cours...",
         });
         setCode("");
-        router.push(redirectBySite[site]);
+        router.push(redirectPath);
         router.refresh();
       } catch (error) {
         console.error(error);

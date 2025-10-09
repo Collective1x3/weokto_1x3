@@ -41,6 +41,7 @@ export default async function SignInPage() {
       site={tenant}
       title={copy.title}
       description={copy.description}
+      redirectPath={copy.redirect}
     />
   );
 }
