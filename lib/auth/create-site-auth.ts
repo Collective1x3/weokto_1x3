@@ -100,6 +100,13 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
             process.env[config.fromEnvVar as keyof NodeJS.ProcessEnv] ??
             process.env.RESEND_DEFAULT_FROM,
           async sendVerificationRequest({ identifier, url }) {
+            const parsedUrl = new URL(url);
+            const expectedPath = `${config.basePath}/callback/email`;
+            if (!parsedUrl.pathname.startsWith(expectedPath)) {
+              parsedUrl.pathname = expectedPath;
+            }
+            const verificationUrl = parsedUrl.toString();
+
             const email = normalizeEmail(identifier);
             const otp = generateOtp(site);
             const hash = hashOtp(site, otp);
@@ -125,7 +132,7 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
               site,
               kind: existingUser ? "login" : "signup",
               to: identifier,
-              magicLink: url,
+              magicLink: verificationUrl,
               otpCode: otp,
             });
           },
