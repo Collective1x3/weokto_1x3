@@ -2,13 +2,13 @@
 // with dedicated users, sessions, verification tokens, and OTP registries.
 // Both auth flows rely on NextAuth (email magic link + OTP credentials).
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
 }
 
 model WeoktoUser {

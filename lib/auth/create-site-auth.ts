@@ -18,17 +18,28 @@ function normalizeEmail(email: string) {
 
 function resolveSiteSecret(site: SiteKey) {
   const envKey = SITE_CONFIGS[site].authSecretEnvVar;
-  const value =
-    process.env[envKey as keyof NodeJS.ProcessEnv] ?? process.env.AUTH_SECRET;
-  if (!value) {
-    if (process.env.VERCEL !== "1") {
-      return `dev-secret-${site}`;
-    }
-    throw new Error(
-      `Secret NextAuth manquant pour ${site}. Renseignez ${envKey} ou AUTH_SECRET.`
+  const explicit = process.env[envKey as keyof NodeJS.ProcessEnv];
+  if (explicit && explicit.length > 0) {
+    return explicit;
+  }
+
+  const shared =
+    process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET ?? process.env.SECRET;
+  if (shared && shared.length > 0) {
+    return shared;
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      `[auth] Secret manquant pour ${site}. Utilisation d'un secret de développement.`
+    );
+  } else {
+    console.error(
+      `[auth] Secret manquant pour ${site}. Définissez ${envKey} ou AUTH_SECRET.`
     );
   }
-  return value;
+
+  return `fallback-secret-${site}`;
 }
 
 export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
