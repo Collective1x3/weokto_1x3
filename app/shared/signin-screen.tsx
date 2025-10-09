@@ -28,6 +28,8 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
   const [isMagicLinkPending, startMagicLinkTransition] = useTransition();
   const [isOtpPending, startOtpTransition] = useTransition();
   const router = useRouter();
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : undefined;
 
   const disabledMagicLink = useMemo(
     () => isMagicLinkPending || email.trim().length === 0,
@@ -51,7 +53,7 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
         const result = await signIn("email", {
           email,
           redirect: false,
-          callbackUrl: redirectPath,
+          callbackUrl: origin ? `${origin}${redirectPath}` : redirectPath,
         });
 
         if (result?.error) {
@@ -92,7 +94,7 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
             email,
             code,
             redirect: false,
-            callbackUrl: redirectPath,
+            callbackUrl: origin ? `${origin}${redirectPath}` : redirectPath,
           },
           { prompt: "login" },
         );
@@ -110,7 +112,8 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
           message: "Connexion réussie. Redirection en cours...",
         });
         setCode("");
-        router.push(redirectPath);
+        const target = result?.url ?? redirectPath;
+        router.replace(target);
         router.refresh();
       } catch (error) {
         console.error(error);
