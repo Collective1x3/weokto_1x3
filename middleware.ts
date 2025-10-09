@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { STAM_HOST, WEOKTO_HOST, isStamHost, isWeoktoHost } from "@/lib/config/hosts";
+import {
+  STAM_HOST,
+  WEOKTO_HOST,
+  isStamHost,
+  isWeoktoHost,
+} from "./lib/config/hosts";
 
 const PUBLIC_FILE = /\.[^/]+$/;
 
