@@ -18,8 +18,8 @@ type Status =
   | { variant: "error"; message: string };
 
 const redirectBySite: Record<SiteKey, string> = {
-  weokto: "/",
-  stam: "/",
+  weokto: "/dashboard",
+  stam: "/home",
 };
 
 export function SignInScreen({ site, title, description }: SignInScreenProps) {
