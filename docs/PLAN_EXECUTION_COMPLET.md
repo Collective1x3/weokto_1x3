@@ -767,8 +767,8 @@
 ## 2.1 - Configuration JWT
 
 ### Backend
-- [ ] Créer `lib/auth/config.ts`
-- [ ] Définir constants :
+- [x] Créer `lib/auth/config.ts`
+- [x] Définir constants :
   ```typescript
   export const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET)
   export const STAM_JWT_SECRET = new TextEncoder().encode(process.env.STAM_JWT_SECRET)
@@ -789,60 +789,63 @@
 ## 2.2 - Système Sessions WEOKTO
 
 ### Backend
-- [ ] Copier `/weokto site/WeOkto.com/lib/auth/session.ts` vers `lib/auth/session.ts`
-- [ ] Adapter imports (vérifier `@/lib/prisma`, `@/lib/security`, etc.)
-- [ ] Vérifier fonction `createSession(user, request, rememberMe)`
-- [ ] Vérifier fonction `getSession()` (cookies, JWT verify)
-- [ ] Vérifier fonction `destroySession()`
+- [x] Copier `/weokto site/WeOkto.com/lib/auth/session.ts` vers `lib/auth/session.ts`
+- [x] Adapter imports (vérifier `@/lib/prisma`, `@/lib/security`, etc.)
+- [x] Vérifier fonction `createSession(user, request, rememberMe)`
+- [x] Vérifier fonction `getSession()` (cookies, JWT verify)
+- [x] Vérifier fonction `destroySession()`
 
 ## 2.3 - Système Sessions STAM
 
 ### Backend
-- [ ] Copier `/weokto site/WeOkto.com/lib/auth/stam/session.ts` vers `lib/auth/stam/session.ts`
-- [ ] Adapter pour `STAM_JWT_SECRET` et `STAM_SESSION_CONFIG`
-- [ ] Vérifier fonction `createStamSession(user, request, rememberMe)`
-- [ ] Vérifier fonction `getStamSession()`
-- [ ] Vérifier fonction `destroyStamSession()`
+- [x] Copier `/weokto site/WeOkto.com/lib/auth/stam/session.ts` vers `lib/auth/stam/session.ts`
+- [x] Adapter pour `STAM_JWT_SECRET` et `STAM_SESSION_CONFIG`
+- [x] Vérifier fonction `createStamSession(user, request, rememberMe)`
+- [x] Vérifier fonction `getStamSession()`
+- [x] Vérifier fonction `destroyStamSession()`
 
 ## 2.4 - Magic Link (Envoi Email)
 
 ### Backend
-- [ ] Créer `lib/auth/magic-link.ts`
-- [ ] Fonction `generateMagicLink(email: string, platform: 'WEOKTO' | 'STAM')` :
+- [x] Créer `lib/auth/magic-link.ts`
+- [x] Fonction `generateMagicLink(email: string, platform: 'WEOKTO' | 'STAM')` :
   - Créer token unique (crypto.randomUUID())
   - Hash token (SHA256)
   - Créer OTP 6 chiffres
   - Stocker dans `MagicLink` table avec `expiresAt` (15 min)
   - Retourner `{ tokenHash, otpCode }`
-- [ ] Fonction `verifyMagicLink(token: string)` :
+- [x] Fonction `verifyMagicLink(token: string)` :
   - Hash token reçu
   - Chercher dans DB (non expiré, non utilisé)
   - Marquer comme utilisé
   - Retourner email
-- [ ] Fonction `verifyOTP(email: string, otp: string)` :
+- [x] Fonction `verifyOTP(email: string, otp: string)` :
   - Chercher MagicLink par email + OTP
   - Vérifier non expiré
   - Marquer comme utilisé
   - Retourner email
+- [x] Fonction `cleanupExpiredTokens()` pour nettoyer les tokens expirés
 
 ### Backend
-- [ ] Créer `lib/email/send-magic-link.ts`
-- [ ] Template email avec Resend + React Email :
+- [x] Créer `lib/email/send-magic-link.ts`
+- [x] Template email avec Resend + React Email :
   - Lien magic : `https://weokto.com/verify?token=xxx`
   - Code OTP : 6 chiffres gras
   - Expiration : 15 minutes
   - Branding WEOKTO (purple #B794F4) ou STAM (distinct)
+- [x] Créer `lib/email/templates/MagicLinkEmail.tsx`
+- [x] Configuration Resend avec initialisation conditionnelle (RESEND_API_KEY)
 
 ## 2.5 - API Routes Authentification WEOKTO
 
 ### Backend
-- [ ] Créer `app/api/auth/magic-link/send/route.ts`
+- [x] Créer `app/api/auth/magic-link/send/route.ts`
   - POST avec `{ email }`
   - Générer magic link
   - Envoyer email via Resend
   - Retourner success
 
-- [ ] Créer `app/api/auth/magic-link/verify/route.ts`
+- [x] Créer `app/api/auth/magic-link/verify/route.ts`
   - GET avec `?token=xxx`
   - Vérifier token
   - Créer/récupérer WeoktoUser
@@ -850,7 +853,7 @@
   - Set cookie
   - Redirect `/home` ou `/choose-guild` si pas de guilde
 
-- [ ] Créer `app/api/auth/magic-link/verify-otp/route.ts`
+- [x] Créer `app/api/auth/magic-link/verify-otp/route.ts`
   - POST avec `{ email, otp }`
   - Vérifier OTP
   - Créer/récupérer WeoktoUser
@@ -858,13 +861,13 @@
   - Set cookie
   - Retourner success + redirect URL
 
-- [ ] Créer `app/api/auth/logout/route.ts`
+- [x] Créer `app/api/auth/logout/route.ts`
   - POST
   - Destroy session
   - Clear cookie
   - Retourner success
 
-- [ ] Créer `app/api/auth/me/route.ts`
+- [x] Créer `app/api/auth/me/route.ts`
   - GET
   - Retourner user depuis session
   - 401 si pas de session
@@ -872,54 +875,60 @@
 ## 2.6 - API Routes Authentification STAM
 
 ### Backend
-- [ ] Créer `app/stam/api/auth/magic-link/send/route.ts`
+**Note**: Routes créées sous `/api/stam/auth/` au lieu de `/app/stam/api/auth/`
+
+- [x] Créer `app/api/stam/auth/magic-link/send/route.ts`
   - Identique WEOKTO mais platform = 'STAM'
   - Créer StamUser au lieu de WeoktoUser
 
-- [ ] Créer `app/stam/api/auth/magic-link/verify/route.ts`
+- [x] Créer `app/api/stam/auth/magic-link/verify/route.ts`
   - Utiliser `createStamSession`
   - Redirect vers `/stam/dashboard` ou produit spécifique
 
-- [ ] Créer `app/stam/api/auth/magic-link/verify-otp/route.ts`
+- [x] Créer `app/api/stam/auth/magic-link/verify-otp/route.ts`
   - Identique WEOKTO mais STAM
 
-- [ ] Créer `app/stam/api/auth/logout/route.ts`
+- [x] Créer `app/api/stam/auth/logout/route.ts`
   - `destroyStamSession()`
 
-- [ ] Créer `app/stam/api/auth/me/route.ts`
+- [x] Créer `app/api/stam/auth/me/route.ts`
   - Retourner StamUser
 
 ## 2.7 - Middleware (Routing WEOKTO vs STAM)
 
 ### Backend
-- [ ] Copier `/weokto site/WeOkto.com/middleware.ts` vers `middleware.ts`
-- [ ] Fonction `isStamHost(host: string)` :
+- [x] Copier `/weokto site/WeOkto.com/middleware.ts` vers `middleware.ts`
+- [x] Fonction `isStamHost(host: string)` :
   ```typescript
   const stamHosts = process.env.STAM_HOSTS?.split(',') || []
   return stamHosts.some(h => host.includes(h))
   ```
-- [ ] Logique routing :
+- [x] Logique routing :
   - Si STAM host → vérifier `stam_session`, redirect STAM routes
   - Si WEOKTO host → vérifier `weokto_session`, redirect WEOKTO routes
-- [ ] Protected routes :
-  - WEOKTO : `/home`, `/profile`, `/settings`
+- [x] Protected routes :
+  - WEOKTO : `/home`, `/profile`, `/settings`, `/dashboard`
   - STAM : `/stam/dashboard`, `/stam/community/*`
   - Owner : `/wo-renwo-9492xE/*` (WEOWNER ou ADMIN uniquement)
   - Admin : `/admin/*` (ADMIN ou WEOWNER uniquement)
   - Product Manager : `/product-manager/*` (PRODUCT_MANAGER, ADMIN, ou WEOWNER)
-- [ ] Redirect non-auth vers `/` (WEOKTO) ou `/stam` (STAM)
+- [x] Redirect non-auth vers `/` (WEOKTO) ou `/stam` (STAM)
+- [x] Fonction `getSession()` et `getStamSession()` pour récupération sessions
+- [x] Fonction `getUserType()` pour détermination type utilisateur
 
 ## 2.8 - Utility Functions Sécurité
 
 ### Backend
-- [ ] Créer `lib/security.ts`
-- [ ] Fonction `shouldUpdateLastLogin(userId: string)` :
+- [x] Créer `lib/security.ts`
+- [x] Fonction `shouldUpdateLastLogin(userId: string)` :
   - Vérifier si dernier login > 1 heure
   - Retourner boolean
-- [ ] Fonction `getClientIp(request: NextRequest)` :
+- [x] Fonction `getClientIp(request: NextRequest)` :
   - Extraire IP depuis headers (x-forwarded-for, x-real-ip)
-- [ ] Fonction `getUserAgent(request: NextRequest)` :
+- [x] Fonction `getUserAgent(request: NextRequest)` :
   - Extraire user-agent
+- [x] Fonction `generateOTP()` : Générer code OTP 6 chiffres
+- [x] Fonction `hashString(str: string)` : Hash SHA-256
 
 ---
 
@@ -935,8 +944,8 @@
 ## 3.2 - Configuration Tailwind
 
 ### Frontend
-- [ ] Ouvrir `tailwind.config.ts`
-- [ ] Ajouter custom colors :
+- [x] Ouvrir `tailwind.config.ts`
+- [x] Ajouter custom colors :
   ```typescript
   colors: {
     weokto: {
@@ -949,49 +958,52 @@
     }
   }
   ```
-- [ ] Ajouter custom fonts (si spécifiques)
+- [ ] Ajouter custom fonts (si spécifiques) - NON FAIT
 
 ## 3.3 - Layout Root Global
 
 ### Frontend
-- [ ] Copier `/weokto site/WeOkto.com/app/layout.tsx` vers `app/layout.tsx`
-- [ ] Vérifier metadata (title, description)
-- [ ] Vérifier fonts import
-- [ ] Inclure Tailwind global styles
+- [x] Copier `/weokto site/WeOkto.com/app/layout.tsx` vers `app/layout.tsx`
+- [x] Vérifier metadata (title, description)
+- [x] Vérifier fonts import
+- [x] Inclure Tailwind global styles
+- [ ] AuthProvider wrapping - NON FAIT (identifié mais pas encore implémenté)
 
 ## 3.4 - Landing Page WEOKTO
 
 ### Frontend
-- [ ] Copier `/weokto site/WeOkto.com/app/page.tsx` vers `app/(weokto)/page.tsx`
-- [ ] Vérifier imports :
+**Note**: Structure de base créée - route principale renommée de `/login` vers `/home`
+
+- [x] Copier `/weokto site/WeOkto.com/app/page.tsx` vers `app/(weokto)/page.tsx`
+- [x] Vérifier imports :
   - `@phosphor-icons/react`
   - `framer-motion`
   - Components (Footer, FAQ, etc.)
-- [ ] Adapter contenu :
+- [x] Adapter contenu :
   - Hero : "CRÉE. VENDS. DOMINE."
   - Présentation Community Academy
   - Présentation TBCB
   - Section "Wins" (témoignages, stats)
   - Section pricing (tiers guildes)
   - FAQ
-- [ ] CTA : "Commencer" → ouvre modal auth (Magic Link)
+- [x] CTA : "Commencer" → ouvre modal auth (Magic Link)
 
 ### Frontend
-- [ ] Créer `components/weokto/TerminalHeaderLandingPage.tsx`
+- [x] Créer `components/weokto/TerminalHeaderLandingPage.tsx`
   - Header style terminal/hacker
   - Navigation : Accueil, Guildes, Blog, Login
   - Mobile responsive
 
-- [ ] Créer `components/weokto/FooterLandingPage.tsx`
+- [x] Créer `components/weokto/FooterLandingPage.tsx`
   - Links : Mentions légales, CGU, Contact
   - Social links
   - Copyright WEOKTO
 
-- [ ] Créer `components/weokto/FAQSection.tsx`
+- [x] Créer `components/weokto/FAQSection.tsx`
   - Accordion FAQ
   - Questions courantes (guildes, affiliation, commissions)
 
-- [ ] Créer `components/weokto/TerminalAuthModal.tsx`
+- [x] Créer `components/weokto/TerminalAuthModal.tsx`
   - Modal Magic Link
   - Input email
   - Envoyer code → API `/api/auth/magic-link/send`
@@ -1002,61 +1014,69 @@
 ## 3.5 - Landing Page STAM
 
 ### Frontend
-- [ ] Créer `app/(stam)/page.tsx`
-- [ ] Design distinct de WEOKTO (autre branding)
-- [ ] Hero : "Rejoins la communauté n°1 du..."
-- [ ] Présentation communautés disponibles (dynamique depuis DB)
-- [ ] Section formations
-- [ ] Section chat temps réel
-- [ ] CTA : "S'inscrire" → modal auth STAM
+- [x] Créer `app/(stam)/page.tsx`
+- [x] Design distinct de WEOKTO (autre branding)
+- [x] Hero : "Rejoins la communauté n°1 du..."
+- [x] Présentation communautés disponibles (dynamique depuis DB)
+- [x] Section formations
+- [x] Section chat temps réel
+- [x] CTA : "S'inscrire" → modal auth STAM
 
 ### Frontend
-- [ ] Layout déjà créé en 0.1.1 : `app/(stam)/layout.tsx`
+- [x] Layout déjà créé en 0.1.1 : `app/(stam)/layout.tsx`
 
-- [ ] Créer `components/stam/HeaderStam.tsx`
+- [x] Créer `components/stam/HeaderStam.tsx`
   - Navigation STAM
   - Login/Signup
 
-- [ ] Créer `components/stam/FooterStam.tsx`
+- [x] Créer `components/stam/FooterStam.tsx`
   - Links STAM
 
 ## 3.6 - Page Login/Signup WEOKTO
 
 ### Frontend
-- [ ] Créer `app/(weokto)/login/page.tsx`
+**Note**: Routes renommées pour éviter conflits - `/login` → `/auth`, `/verify-otp` → `/verify`
+
+- [x] Créer `app/(weokto)/auth/page.tsx` (était `/login`)
   - Formulaire email
   - Bouton "Envoyer lien magique"
   - Appel API `/api/auth/magic-link/send`
-  - Redirection vers `/verify-otp` avec email en query
+  - Redirection vers `/verify` avec email en query
 
-- [ ] Créer `app/(weokto)/verify-otp/page.tsx`
+- [x] Créer `app/(weokto)/verify/page.tsx` (était `/verify-otp`)
   - Input 6 chiffres OTP
   - Bouton "Vérifier"
   - Appel API `/api/auth/magic-link/verify-otp`
   - Redirect `/home` ou `/choose-guild`
 
+- [ ] Suspense wrapper - NON FAIT (identifié mais pas encore implémenté)
+
 ## 3.7 - Page Login/Signup STAM
 
 ### Frontend
-- [ ] Créer `app/(stam)/login/page.tsx`
-  - Identique WEOKTO mais branding STAM
-  - API `/stam/api/auth/magic-link/send`
+**Note**: Routes renommées pour éviter conflits - `/login` → `/auth-stam`, `/verify-otp` → `/verify-stam`
 
-- [ ] Créer `app/(stam)/verify-otp/page.tsx`
+- [x] Créer `app/(stam)/auth-stam/page.tsx` (était `/login`)
+  - Identique WEOKTO mais branding STAM
+  - API `/api/stam/auth/magic-link/send`
+
+- [x] Créer `app/(stam)/verify-stam/page.tsx` (était `/verify-otp`)
   - Identique WEOKTO mais STAM
-  - API `/stam/api/auth/magic-link/verify-otp`
+  - API `/api/stam/auth/magic-link/verify-otp`
+
+- [ ] Suspense wrapper - NON FAIT (identifié mais pas encore implémenté)
 
 ## 3.8 - Context Auth (Frontend State)
 
 ### Frontend
-- [ ] Créer `contexts/AuthContext.tsx`
-- [ ] Provider global :
+- [x] Créer `contexts/AuthContext.tsx`
+- [x] Provider global :
   ```typescript
   const AuthContext = createContext<{
     showAuthModal: boolean
     setShowAuthModal: (show: boolean) => void
-    authMode: 'login' | 'signup'
-    setAuthMode: (mode: 'login' | 'signup') => void
+    platform: 'WEOKTO' | 'STAM'
+    step: 'email' | 'otp'
     email: string
     setEmail: (email: string) => void
     sendMagicLink: () => Promise<void>
@@ -1065,12 +1085,12 @@
     errorMessage: string | null
   }>()
   ```
-- [ ] Wrap `app/layout.tsx` avec `<AuthProvider>`
+- [ ] Wrap `app/layout.tsx` avec `<AuthProvider>` - NON FAIT (identifié mais pas encore implémenté)
 
 ### Frontend
-- [ ] Créer `contexts/UserSessionContext.tsx`
-- [ ] Fetch user depuis `/api/auth/me` au mount
-- [ ] Provider :
+- [x] Créer `contexts/UserSessionContext.tsx`
+- [x] Fetch user depuis `/api/auth/me` au mount
+- [x] Provider :
   ```typescript
   const UserSessionContext = createContext<{
     user: WeoktoUser | null
@@ -1080,9 +1100,9 @@
   ```
 
 ### Frontend
-- [ ] Créer `contexts/StamUserContext.tsx`
+- [x] Créer `contexts/StamUserContext.tsx`
   - Identique pour STAM
-  - Fetch `/stam/api/auth/me`
+  - Fetch `/api/stam/auth/me`
 
 ---
 

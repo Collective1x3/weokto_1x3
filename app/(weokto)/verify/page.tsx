@@ -25,10 +25,10 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function WeoktoVerifyOtpPage() {
+function VerifyOtpContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const emailFromQuery = searchParams.get('email') || '';
@@ -173,5 +173,17 @@ export default function WeoktoVerifyOtpPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function WeoktoVerifyOtpPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-purple-400 font-mono">Chargement...</div>
+      </div>
+    }>
+      <VerifyOtpContent />
+    </Suspense>
   );
 }
