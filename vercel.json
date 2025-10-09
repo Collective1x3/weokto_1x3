@@ -1,4 +1,34 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        { "type": "host", "value": "be-stam.com" }
+      ],
+      "destination": "/stam"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        { "type": "host", "value": "be-stam.com" }
+      ],
+      "destination": "/stam/:path*"
+    },
+    {
+      "source": "/",
+      "has": [
+        { "type": "host", "value": "weokto.com" }
+      ],
+      "destination": "/weokto"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        { "type": "host", "value": "weokto.com" }
+      ],
+      "destination": "/weokto/:path*"
+    }
+  ]
 }
