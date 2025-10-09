@@ -29,14 +29,15 @@ function normalizeHost(value?: string | null) {
   return host.toLowerCase();
 }
 
+const env =
+  typeof process !== "undefined" && typeof process.env !== "undefined"
+    ? (process.env as Record<string, string | undefined>)
+    : {};
+
 const RAW_STAM_HOST =
-  process.env.NEXT_PUBLIC_STAM_APP_URL ??
-  process.env.STAM_COOKIE_DOMAIN ??
-  "be-stam.com";
+  env.NEXT_PUBLIC_STAM_APP_URL ?? env.STAM_COOKIE_DOMAIN ?? "be-stam.com";
 const RAW_WEOKTO_HOST =
-  process.env.NEXT_PUBLIC_APP_URL ??
-  process.env.WEOKTO_COOKIE_DOMAIN ??
-  "weokto.com";
+  env.NEXT_PUBLIC_APP_URL ?? env.WEOKTO_COOKIE_DOMAIN ?? "weokto.com";
 
 const STAM_HOST = normalizeHost(RAW_STAM_HOST) ?? "be-stam.com";
 const WEOKTO_HOST = normalizeHost(RAW_WEOKTO_HOST) ?? "weokto.com";
