@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function WeoktoLanding() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 px-6 text-center">
@@ -9,13 +11,12 @@ export function WeoktoLanding() {
           Plateforme sécurisée pour vos expériences digitales.
         </p>
       </div>
-      <button
-        type="button"
+      <Link
+        href="/signin"
         className="rounded-full bg-white/10 px-8 py-3 text-base font-semibold uppercase tracking-wide text-white backdrop-blur transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80"
-        disabled
       >
         Commencer
-      </button>
+      </Link>
     </main>
   );
 }
