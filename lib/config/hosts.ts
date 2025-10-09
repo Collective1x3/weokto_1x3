@@ -27,15 +27,22 @@ function normalizeHost(value?: string | null) {
   return host.toLowerCase();
 }
 
-export const STAM_HOST =
-  normalizeHost(
-    process.env.NEXT_PUBLIC_STAM_APP_URL ?? process.env.STAM_COOKIE_DOMAIN
-  ) ?? "be-stam.com";
+export function resolveHosts() {
+  const stam =
+    normalizeHost(
+      process.env.NEXT_PUBLIC_STAM_APP_URL ?? process.env.STAM_COOKIE_DOMAIN
+    ) ?? "be-stam.com";
+  const weokto =
+    normalizeHost(
+      process.env.NEXT_PUBLIC_APP_URL ?? process.env.WEOKTO_COOKIE_DOMAIN
+    ) ?? "weokto.com";
+  return { stam, weokto };
+}
 
-export const WEOKTO_HOST =
-  normalizeHost(
-    process.env.NEXT_PUBLIC_APP_URL ?? process.env.WEOKTO_COOKIE_DOMAIN
-  ) ?? "weokto.com";
+const memoized = resolveHosts();
+
+export const STAM_HOST = memoized.stam;
+export const WEOKTO_HOST = memoized.weokto;
 
 function hostEquals(target: string | undefined, host?: string | null) {
   if (!target || !host) {
