@@ -1,5 +1,15 @@
 const FALLBACK_SCHEME = "https://";
 
+function readEnv(name: string) {
+  if (typeof process !== "undefined" && process.env) {
+    const value = process.env[name as keyof typeof process.env];
+    if (typeof value === "string" && value.length > 0) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
 function normalizeHost(value?: string | null) {
   if (!value) {
     return undefined;
@@ -30,11 +40,11 @@ function normalizeHost(value?: string | null) {
 export function resolveHosts() {
   const stam =
     normalizeHost(
-      process.env.NEXT_PUBLIC_STAM_APP_URL ?? process.env.STAM_COOKIE_DOMAIN
+      readEnv("NEXT_PUBLIC_STAM_APP_URL") ?? readEnv("STAM_COOKIE_DOMAIN")
     ) ?? "be-stam.com";
   const weokto =
     normalizeHost(
-      process.env.NEXT_PUBLIC_APP_URL ?? process.env.WEOKTO_COOKIE_DOMAIN
+      readEnv("NEXT_PUBLIC_APP_URL") ?? readEnv("WEOKTO_COOKIE_DOMAIN")
     ) ?? "weokto.com";
   return { stam, weokto };
 }
@@ -70,8 +80,8 @@ export function isWeoktoHost(host?: string | null) {
 export function getCookieDomain(site: "weokto" | "stam") {
   const value =
     site === "weokto"
-      ? process.env.WEOKTO_COOKIE_DOMAIN
-      : process.env.STAM_COOKIE_DOMAIN;
+      ? readEnv("WEOKTO_COOKIE_DOMAIN")
+      : readEnv("STAM_COOKIE_DOMAIN");
   const normalized = normalizeHost(value);
   return normalized ? `.${normalized}` : undefined;
 }
