@@ -12,25 +12,21 @@ function getEnv(name: string) {
   return undefined;
 }
 
-function parseHostList(value: string | undefined) {
-  if (!value) {
-    return [];
+function extractHost(value: string) {
+  let entry = value.trim();
+  if (!entry) {
+    return undefined;
   }
-  return value
-    .split(",")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
+  if (!entry.includes("://")) {
+    entry = `https://${entry}`;
+  }
+  try {
+    const url = new URL(entry);
+    return url.host;
+  } catch {
+    return entry;
+  }
 }
-
-const FALLBACK_STAM_HOSTS = parseHostList(
-  getEnv("NEXT_PUBLIC_STAM_HOSTS") ?? getEnv("NEXT_PUBLIC_STAM_APP_URL")
-) ?? [];
-const FALLBACK_WEOKTO_HOSTS = parseHostList(
-  getEnv("NEXT_PUBLIC_WEOKTO_HOSTS") ?? getEnv("NEXT_PUBLIC_APP_URL")
-) ?? [];
-
-const DEFAULT_TENANT: TenantKey =
-  (getEnv("NEXT_PUBLIC_DEFAULT_TENANT") as TenantKey | undefined) ?? "weokto";
 
 function normalizeHost(host?: string | null) {
   if (!host) {
@@ -42,6 +38,36 @@ function normalizeHost(host?: string | null) {
   }
   return value.startsWith("www.") ? value.slice(4) : value;
 }
+
+function parseHostList(value: string | undefined) {
+  if (!value) {
+    return [];
+  }
+  return value
+    .split(",")
+    .map((entry) => extractHost(entry))
+    .filter(Boolean)
+    .map((entry) => normalizeHost(entry)!)
+    .filter(Boolean);
+}
+
+const DEFAULT_STAM_HOSTS = ["be-stam.com", "be-stam.vercel.app"];
+const DEFAULT_WEOKTO_HOSTS = ["weokto.com", "weokto.vercel.app", "weokto-1x3.vercel.app"];
+
+const STAM_HOSTS = [
+  ...DEFAULT_STAM_HOSTS,
+  ...parseHostList(getEnv("NEXT_PUBLIC_STAM_APP_URL")),
+  ...parseHostList(getEnv("NEXT_PUBLIC_STAM_HOSTS")),
+];
+
+const WEOKTO_HOSTS = [
+  ...DEFAULT_WEOKTO_HOSTS,
+  ...parseHostList(getEnv("NEXT_PUBLIC_APP_URL")),
+  ...parseHostList(getEnv("NEXT_PUBLIC_WEOKTO_HOSTS")),
+];
+
+const DEFAULT_TENANT: TenantKey =
+  (getEnv("NEXT_PUBLIC_DEFAULT_TENANT") as TenantKey | undefined) ?? "weokto";
 
 function hostMatches(host: string | undefined, candidates: string[]) {
   if (!host) {
@@ -55,10 +81,16 @@ function hostMatches(host: string | undefined, candidates: string[]) {
 
 export function resolveTenantFromHost(host?: string | null): TenantKey {
   const normalized = normalizeHost(host);
-  if (hostMatches(normalized, FALLBACK_STAM_HOSTS)) {
+  if (normalized?.includes("stam")) {
     return "stam";
   }
-  if (hostMatches(normalized, FALLBACK_WEOKTO_HOSTS)) {
+  if (normalized?.includes("weokto")) {
+    return "weokto";
+  }
+  if (hostMatches(normalized, STAM_HOSTS)) {
+    return "stam";
+  }
+  if (hostMatches(normalized, WEOKTO_HOSTS)) {
     return "weokto";
   }
   return DEFAULT_TENANT;
