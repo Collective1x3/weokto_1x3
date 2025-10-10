@@ -53,17 +53,6 @@ CREATE TABLE IF NOT EXISTS "WeoktoVerificationToken" (
   PRIMARY KEY ("identifier", "token")
 );
 
-CREATE TABLE IF NOT EXISTS "WeoktoOtpCode" (
-  "id" TEXT PRIMARY KEY,
-  "email" TEXT NOT NULL,
-  "codeHash" TEXT NOT NULL,
-  "expires" TIMESTAMPTZ NOT NULL,
-  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  "consumedAt" TIMESTAMPTZ,
-  "attempts" INTEGER NOT NULL DEFAULT 0,
-  "lastAttempt" TIMESTAMPTZ
-);
-
 CREATE TABLE IF NOT EXISTS "StamUser" (
   "id" TEXT PRIMARY KEY,
   "pseudo" TEXT,
@@ -112,17 +101,6 @@ CREATE TABLE IF NOT EXISTS "StamVerificationToken" (
   "expires" TIMESTAMPTZ NOT NULL,
   "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   PRIMARY KEY ("identifier", "token")
-);
-
-CREATE TABLE IF NOT EXISTS "StamOtpCode" (
-  "id" TEXT PRIMARY KEY,
-  "email" TEXT NOT NULL,
-  "codeHash" TEXT NOT NULL,
-  "expires" TIMESTAMPTZ NOT NULL,
-  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  "consumedAt" TIMESTAMPTZ,
-  "attempts" INTEGER NOT NULL DEFAULT 0,
-  "lastAttempt" TIMESTAMPTZ
 );
 
 COMMIT;

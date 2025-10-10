@@ -1,6 +1,5 @@
 // This Prisma schema models two independent authentication silos (Weokto & Stam)
-// with dedicated users, sessions, verification tokens, and OTP registries.
-// Both auth flows rely on NextAuth (email magic link + OTP credentials).
+// with dedicated users, sessions, and verification tokens for magic-link auth.
 
 datasource db {
   provider = "postgresql"
@@ -69,17 +68,6 @@ model WeoktoVerificationToken {
   @@id([identifier, token])
 }
 
-model WeoktoOtpCode {
-  id          String   @id @default(cuid())
-  email       String
-  codeHash    String
-  expires     DateTime
-  createdAt   DateTime @default(now())
-  consumedAt  DateTime?
-  attempts    Int      @default(0)
-  lastAttempt DateTime?
-}
-
 model StamUser {
   id        String          @id @default(cuid())
   pseudo    String?
@@ -136,15 +124,4 @@ model StamVerificationToken {
   createdAt  DateTime @default(now())
 
   @@id([identifier, token])
-}
-
-model StamOtpCode {
-  id          String   @id @default(cuid())
-  email       String
-  codeHash    String
-  expires     DateTime
-  createdAt   DateTime @default(now())
-  consumedAt  DateTime?
-  attempts    Int      @default(0)
-  lastAttempt DateTime?
 }

@@ -9,12 +9,11 @@ type SendAuthEmailParams = {
   kind: AuthEmailKind;
   to: string;
   magicLink: string;
-  otpCode: string;
 };
 
 export async function sendAuthEmail(params: SendAuthEmailParams) {
   assertResendConfigured();
-  const { site, kind, to, magicLink, otpCode } = params;
+  const { site, kind, to, magicLink } = params;
   const { fromEnvVar } = SITE_CONFIGS[site];
 
   const from =
@@ -27,7 +26,7 @@ export async function sendAuthEmail(params: SendAuthEmailParams) {
     );
   }
 
-  const payload = renderAuthEmail({ site, kind, to, magicLink, otpCode });
+  const payload = renderAuthEmail({ site, kind, to, magicLink });
 
   await resend!.emails.send({
     from,

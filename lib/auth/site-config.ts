@@ -10,7 +10,6 @@ type SiteConfig = {
   authSecretEnvVar: string;
   dashboardPath: string;
   cookieDomainEnvVar: string;
-  otpLength: number;
 };
 
 export const SITE_CONFIGS: Record<SiteKey, SiteConfig> = {
@@ -24,7 +23,6 @@ export const SITE_CONFIGS: Record<SiteKey, SiteConfig> = {
     authSecretEnvVar: "WEOKTO_AUTH_SECRET",
     dashboardPath: "/dashboard",
     cookieDomainEnvVar: "WEOKTO_COOKIE_DOMAIN",
-    otpLength: 6,
   },
   stam: {
     key: "stam",
@@ -36,6 +34,5 @@ export const SITE_CONFIGS: Record<SiteKey, SiteConfig> = {
     authSecretEnvVar: "STAM_AUTH_SECRET",
     dashboardPath: "/home",
     cookieDomainEnvVar: "STAM_COOKIE_DOMAIN",
-    otpLength: 6,
   },
 };

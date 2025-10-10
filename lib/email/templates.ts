@@ -7,7 +7,6 @@ type AuthEmailPayload = {
   kind: AuthEmailKind;
   to: string;
   magicLink: string;
-  otpCode: string;
 };
 
 const accentBySite: Record<SiteKey, string> = {
@@ -26,7 +25,7 @@ const signupSubjects: Record<SiteKey, string> = {
 };
 
 export function renderAuthEmail(payload: AuthEmailPayload) {
-  const { site, kind, magicLink, otpCode } = payload;
+  const { site, kind, magicLink } = payload;
   const brand = SITE_CONFIGS[site].name;
   const accent = accentBySite[site];
   const isSignup = kind === "signup";
@@ -52,7 +51,7 @@ export function renderAuthEmail(payload: AuthEmailPayload) {
           </tr>
           <tr>
             <td style="font-size:15px;line-height:1.7;padding-bottom:28px;text-align:center;color:#cbd5f5;">
-              ${isSignup ? `Votre compte ${brand} est presque prêt.` : `Utilisez l'une des méthodes ci-dessous pour vous connecter.`}
+              ${isSignup ? `Votre compte ${brand} est presque prêt.` : `Utilisez le lien ci-dessous pour vous connecter.`}
             </td>
           </tr>
           <tr>
@@ -63,12 +62,10 @@ export function renderAuthEmail(payload: AuthEmailPayload) {
             </td>
           </tr>
           <tr>
-            <td style="background:#0f172a;border-radius:18px;padding:20px 24px;text-align:center;">
-              <p style="margin:0 0 12px 0;font-size:13px;color:#94a3b8;text-transform:uppercase;letter-spacing:4px;">Code OTP</p>
-              <p style="margin:0;font-size:28px;font-weight:700;letter-spacing:12px;color:#f9fafb;">${otpCode}</p>
-              <p style="margin:16px 0 0 0;font-size:13px;color:#64748b;">
-                Le code expire dans 10 minutes. Ne le partagez jamais.
-              </p>
+            <td style="padding:0 24px 24px 24px;text-align:center;font-size:13px;color:#94a3b8;">
+              Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :
+              <br />
+              <span style="word-break:break-all;color:${accent};">${magicLink}</span>
             </td>
           </tr>
           <tr>
@@ -85,9 +82,6 @@ export function renderAuthEmail(payload: AuthEmailPayload) {
   const text = `${isSignup ? "Bienvenue" : "Connexion"} ${brand}
 
 Ouvrez le lien magique : ${magicLink}
-
-Ou saisissez le code OTP : ${otpCode}
-(valide 10 minutes)
 `;
 
   return { subject, html, text };

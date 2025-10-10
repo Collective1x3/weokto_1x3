@@ -1,14 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import EmailProvider from "next-auth/providers/email";
-import CredentialsProvider from "next-auth/providers/credentials";
 import { prismaDelegates } from "./delegates";
 import { createSiteAdapter } from "./site-adapter";
-import {
-  OTP_MAX_ATTEMPTS,
-  OTP_TTL_MS,
-  generateOtp,
-  hashOtp,
-} from "./otp";
 import { SITE_CONFIGS, type SiteKey } from "./site-config";
 import { sendAuthEmail } from "../email/send-auth-email";
 import { getCookieDomain } from "@/lib/config/hosts";
@@ -50,7 +43,6 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
   const accountDelegate = delegates.account as any;
   const sessionDelegate = delegates.session as any;
   const verificationDelegate = delegates.verificationToken as any;
-  const otpDelegate = delegates.otp as any;
   const cookieDomain = getCookieDomain(site);
   const secureCookies = process.env.NODE_ENV === "production";
 
@@ -100,30 +92,7 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
             process.env[config.fromEnvVar as keyof NodeJS.ProcessEnv] ??
             process.env.RESEND_DEFAULT_FROM,
           async sendVerificationRequest({ identifier, url }) {
-            const parsedUrl = new URL(url);
-            const expectedPath = `${config.basePath}/callback/email`;
-            if (!parsedUrl.pathname.startsWith(expectedPath)) {
-              parsedUrl.pathname = expectedPath;
-            }
-            const verificationUrl = parsedUrl.toString();
-
             const email = normalizeEmail(identifier);
-            const otp = generateOtp(site);
-            const hash = hashOtp(site, otp);
-            const expires = new Date(Date.now() + OTP_TTL_MS);
-
-            await otpDelegate.deleteMany({
-              where: { email },
-            });
-
-            await otpDelegate.create({
-              data: {
-                email,
-                codeHash: hash,
-                expires,
-              },
-            });
-
             const existingUser = await userDelegate.findFirst({
               where: { email },
             });
@@ -132,107 +101,12 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
               site,
               kind: existingUser ? "login" : "signup",
               to: identifier,
-              magicLink: verificationUrl,
-              otpCode: otp,
+              magicLink: url,
             });
           },
         });
         return provider;
       })(),
-      CredentialsProvider({
-        id: "otp",
-        name: `${config.name} OTP`,
-        credentials: {
-          email: { label: "E-mail", type: "email" },
-          code: { label: "Code", type: "text" },
-        },
-        async authorize(credentials) {
-          const email = credentials?.email
-            ? normalizeEmail(credentials.email)
-            : null;
-          const code = credentials?.code?.replace(/\s+/g, "");
-
-          if (!email || !code || code.length !== config.otpLength) {
-            throw new Error("Email ou code OTP invalide.");
-          }
-
-          const record = await otpDelegate.findFirst({
-            where: { email },
-            orderBy: { createdAt: "desc" },
-          });
-
-          if (!record) {
-            throw new Error("OTP expiré ou inexistant.");
-          }
-
-          const now = new Date();
-
-          if (record.consumedAt) {
-            throw new Error("OTP déjà utilisé.");
-          }
-
-          if (record.expires.getTime() < now.getTime()) {
-            await otpDelegate.update({
-              where: { id: record.id },
-              data: { consumedAt: now, lastAttempt: now },
-            });
-            throw new Error("OTP expiré. Demandez un nouveau code.");
-          }
-
-          if (record.attempts >= OTP_MAX_ATTEMPTS) {
-            throw new Error(
-              "Trop de tentatives. Demandez un nouveau code OTP."
-            );
-          }
-
-          const hashed = hashOtp(site, code);
-          if (hashed !== record.codeHash) {
-            await otpDelegate.update({
-              where: { id: record.id },
-              data: {
-                attempts: { increment: 1 },
-                lastAttempt: now,
-              },
-            });
-            throw new Error("Code OTP incorrect.");
-          }
-
-          await otpDelegate.update({
-            where: { id: record.id },
-            data: {
-              consumedAt: now,
-              lastAttempt: now,
-              attempts: { increment: 1 },
-            },
-          });
-
-          await otpDelegate.deleteMany({
-            where: {
-              email,
-              id: { not: record.id },
-            },
-          });
-
-          const existingUser = await userDelegate.findFirst({
-            where: { email },
-          });
-
-          const user =
-            existingUser ??
-            (await userDelegate.create({
-              data: {
-                email,
-                createdAt: now,
-              },
-            }));
-
-          return {
-            id: user.id,
-            email: user.email ?? undefined,
-            name: user.pseudo ?? undefined,
-          };
-        },
-      }),
     ],
     callbacks: {
       async session({ session, user }) {
@@ -246,15 +120,6 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
             null;
         }
         return session;
-      },
-    },
-    events: {
-      async signIn({ user, isNewUser }) {
-        if (isNewUser && user.email) {
-          await otpDelegate.deleteMany({
-            where: { email: normalizeEmail(user.email) },
-          });
-        }
       },
     },
     pages: {
