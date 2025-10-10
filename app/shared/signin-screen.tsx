@@ -29,7 +29,9 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
   const [isOtpPending, startOtpTransition] = useTransition();
   const router = useRouter();
   const origin =
-    typeof window !== "undefined" ? window.location.origin : undefined;
+    typeof window !== "undefined"
+      ? window.location.origin
+      : process.env.NEXT_PUBLIC_APP_URL ?? "";
   const authBasePath =
     site === "stam" ? "/api/auth/stam" : "/api/auth/weokto";
 

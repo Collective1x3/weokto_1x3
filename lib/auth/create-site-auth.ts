@@ -247,20 +247,6 @@ export function createSiteAuthConfig(site: SiteKey): NextAuthOptions {
         }
         return session;
       },
-      async redirect({ url, baseUrl }) {
-        const dashboardPath = config.dashboardPath;
-        if (!url) {
-          return `${baseUrl}${dashboardPath}`;
-        }
-        if (url.startsWith(baseUrl)) {
-          const path = url.slice(baseUrl.length) || "/";
-          if (path === "/" || path === config.signinPath) {
-            return `${baseUrl}${dashboardPath}`;
-          }
-          return url;
-        }
-        return `${baseUrl}${dashboardPath}`;
-      },
     },
     events: {
       async signIn({ user, isNewUser }) {
