@@ -26,25 +26,6 @@ CREATE TABLE IF NOT EXISTS "WeoktoSession" (
   "ipAddress" TEXT
 );
 
-CREATE TABLE IF NOT EXISTS "WeoktoAccount" (
-  "id" TEXT PRIMARY KEY,
-  "userId" TEXT NOT NULL REFERENCES "WeoktoUser"("id") ON DELETE CASCADE,
-  "type" TEXT NOT NULL,
-  "provider" TEXT NOT NULL,
-  "providerAccountId" TEXT NOT NULL,
-  "refresh_token" TEXT,
-  "access_token" TEXT,
-  "expires_at" INTEGER,
-  "token_type" TEXT,
-  "scope" TEXT,
-  "id_token" TEXT,
-  "session_state" TEXT,
-  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT "WeoktoAccount_provider_providerAccountId_key"
-    UNIQUE ("provider", "providerAccountId")
-);
-
 CREATE TABLE IF NOT EXISTS "WeoktoVerificationToken" (
   "identifier" TEXT NOT NULL,
   "token" TEXT NOT NULL UNIQUE,
@@ -74,25 +55,6 @@ CREATE TABLE IF NOT EXISTS "StamSession" (
   "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   "userAgent" TEXT,
   "ipAddress" TEXT
-);
-
-CREATE TABLE IF NOT EXISTS "StamAccount" (
-  "id" TEXT PRIMARY KEY,
-  "userId" TEXT NOT NULL REFERENCES "StamUser"("id") ON DELETE CASCADE,
-  "type" TEXT NOT NULL,
-  "provider" TEXT NOT NULL,
-  "providerAccountId" TEXT NOT NULL,
-  "refresh_token" TEXT,
-  "access_token" TEXT,
-  "expires_at" INTEGER,
-  "token_type" TEXT,
-  "scope" TEXT,
-  "id_token" TEXT,
-  "session_state" TEXT,
-  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT "StamAccount_provider_providerAccountId_key"
-    UNIQUE ("provider", "providerAccountId")
 );
 
 CREATE TABLE IF NOT EXISTS "StamVerificationToken" (

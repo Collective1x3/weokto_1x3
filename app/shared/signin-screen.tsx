@@ -47,8 +47,8 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
           "email",
           {
             email,
-            redirect: false,
-            callbackUrl: origin ? `${origin}${redirectPath}` : redirectPath,
+            redirect: true,
+            callbackUrl: `${origin}${redirectPath}`,
           },
           { basePath: authBasePath },
         );
@@ -59,14 +59,14 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
             message:
               "Impossible d'envoyer l'e-mail pour le moment. Réessayez plus tard.",
           });
-            return;
-          }
+          return;
+        }
 
-          setStatus({
-            variant: "success",
-            message:
-              "Lien magique envoyé. Consultez votre boîte mail pour continuer.",
-          });
+        setStatus({
+          variant: "success",
+          message:
+            "Lien magique envoyé. Consultez votre boîte mail pour continuer.",
+        });
       } catch (error) {
         console.error(error);
         setStatus({
