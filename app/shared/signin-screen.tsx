@@ -30,6 +30,8 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
   const router = useRouter();
   const origin =
     typeof window !== "undefined" ? window.location.origin : undefined;
+  const authBasePath =
+    site === "stam" ? "/api/auth/stam" : "/api/auth/weokto";
 
   const disabledMagicLink = useMemo(
     () => isMagicLinkPending || email.trim().length === 0,
@@ -50,11 +52,15 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
     setStatus({ variant: "idle", message: "" });
     startMagicLinkTransition(async () => {
       try {
-        const result = await signIn("email", {
-          email,
-          redirect: false,
-          callbackUrl: origin ? `${origin}${redirectPath}` : redirectPath,
-        });
+        const result = await signIn(
+          "email",
+          {
+            email,
+            redirect: false,
+            callbackUrl: origin ? `${origin}${redirectPath}` : redirectPath,
+          },
+          { basePath: authBasePath },
+        );
 
         if (result?.error) {
           setStatus({
@@ -88,14 +94,14 @@ export function SignInScreen({ site, title, description, redirectPath }: SignInS
 
     startOtpTransition(async () => {
       try {
-        const target = origin ? `${origin}${redirectPath}` : redirectPath;
         const result = await signIn(
           "otp",
           {
             email,
             code,
-            callbackUrl: target,
+            callbackUrl: origin ? `${origin}${redirectPath}` : redirectPath,
           },
+          { basePath: authBasePath },
         );
 
         // Lorsque redirect est true (par défaut), signIn renvoie undefined.
